@@ -1,11 +1,5 @@
 local Lib = {}
 
---[[  TODO:
-
-    -- utdeltatrav bhud compat, naturally
-
-]]
-
 function Lib:init()
 
     ----------------------------------------------------------------------------------
@@ -13,10 +7,6 @@ function Lib:init()
     ----------------------------------------------------------------------------------
 
     print(self.info.id .. " version " .. self.info.version .. ": Ready!")
-
-    if Mod.libs["moreparty"] then
-        Lib.MOREPARTY = true
-    end
 
     ----------------------------------------------------------------------------------
     -----  ITEM HOOKS
@@ -32,20 +22,13 @@ function Lib:init()
         self.bolt_speed = nil
         self.bolt_offset = 0
         self.bolt_accel = 0
-        self.multibolt_variance = {{80}}
+        self.multibolt_variance = 80
         
         -- Determines how multibolts are spawned.
         -- true = "last_bolt":  The next bolt is spawned relative to the last bolt spawned (lower values recommended)
         -- false = "first_bolt": The next bolt is spawned relative to the first bolt spawned (higher values recommended, bolts may overlap)
         -- first_bolt is here for magical glass parity, though last_bolt is recommended
         self.calculate_multibolt_from_last_bolt = true
-
-        self.bolt_target = 0
-        self.bolt_miss_threshold = -5
-
-        self.critical_threshold = 30 -- here for ease of use and for the debug display
-        self.critical_bonus = 0
-        self.max_points = nil
     
     end)
 
@@ -67,32 +50,6 @@ function Lib:init()
 
     Utils.hook(Item, "getBoltAcceleration", function(orig, self)
         return self.bolt_accel
-    end)
-
-    Utils.hook(Item, "getBoltTarget", function(orig, self)
-        return self.bolt_target
-    end)
-
-    Utils.hook(Item, "getBoltMissThreshold", function(orig, self)
-        return self.bolt_miss_threshold
-    end)
- 
-    Utils.hook(Item, "getCriticalThreshold", function(orig, self)
-        return self.critical_threshold
-    end)
-
-    Utils.hook(Item, "getCriticalBonus", function(orig, self)
-        return self.critical_bonus
-    end)
-
-    Utils.hook(Item, "getMaxPoints", function(orig, self)
-
-        if not self.max_points then
-            self.max_points = self.critical_threshold * 3.5
-        end
-
-        return self.max_points
-        
     end)
 
     ----- CALLBACKS
@@ -231,21 +188,7 @@ function Lib:init()
     
     end)
 
-    Utils.hook(Item, "onArmorMiss", function(orig, self, battler, score, bolts, close)
-
-        local attackbox
-        for _,box in ipairs(Game.battle.battle_ui.attack_boxes) do
-            if box.battler == battler then
-                attackbox = box
-                break
-            end
-        end
-
-        return self:checkAttackEnd(battler, attackbox.score, bolts, close)
-    end)
-
     Utils.hook(Item, "checkAttackEnd", function(orig, self, battler, score, bolts, close)
-    
         local attackbox
         for _,box in ipairs(Game.battle.battle_ui.attack_boxes) do
             if box.battler == battler then
@@ -258,11 +201,9 @@ function Lib:init()
             attackbox.attacked = true
             return self:evaluateScore(battler, score, bolts, close)
         end
-    
     end)
 
     Utils.hook(Item, "onBoltBurst", function(orig, self, battler, score, bolts, close)
-
         local bolt = bolts[1]
 
         bolt:burst()
@@ -271,7 +212,6 @@ function Lib:init()
         bolt:setParent(Game.battle.battle_ui)
 
         if battler:getBoltCount() > 1 then
-
             if close == 0 then
                 Assets.stopAndPlaySound("victor", 1.2)
                 bolt:setColor(1, 1, 0)
@@ -282,18 +222,16 @@ function Lib:init()
                 Assets.stopAndPlaySound("hit", 1.1)
                 bolt:setColor(battler.chara:getDamageColor())
             end
-
         else
+            local p = math.abs(close)
 
-            if close == 0 then
+            if p <= 0.25 then
                 bolt:setColor(1, 1, 0)
                 bolt.burst_speed = 0.2
-            elseif (math.abs(close) >= 3) then
+            elseif p > 2.6 then
                 bolt:setColor(battler.chara:getDamageColor())
             end
-
         end
-        
     end)
 
     ----- EVALUATEHIT
@@ -305,62 +243,61 @@ function Lib:init()
             if close < -1 then
 
                 --return 50
-                return math.floor(self:getMaxPoints() / 1.4)
+                return math.floor(105 / 1.4)
 
             elseif close < 0 then
 
                 --return 70
-                return math.floor(self:getMaxPoints() / 1.3)
+                return math.floor(105 / 1.3)
 
             elseif close < 1 then
                 
                 --return 105
-                return self:getMaxPoints()
+                return math.floor(105 / 1)
 
             elseif close < 2 then
 
                 --return 85
-                return math.floor(self:getMaxPoints() / 1.2)
+                return math.floor(105 / 1.2)
 
             elseif close < 3 then
 
                 --return 70
-                return math.floor(self:getMaxPoints() / 1.35)
+                return math.floor(105 / 1.35)
 
             elseif close < 6 then
 
                 --return 40
-                return math.floor(self:getMaxPoints() / 2.1)
+                return math.floor(105 / 2.1)
 
             elseif close < 8 then
 
                 --return 25
-                return math.floor(self:getMaxPoints() / 3.7)
+                return math.floor(105 / 3.7)
 
             elseif close < 11 then
 
                 --return 20
-                return math.floor(self:getMaxPoints() / 4)
+                return math.floor(105 / 4)
 
             else
 
                 --return 10
-                return math.floor(self:getMaxPoints() / 5)
+                return math.floor(105 / 5)
 
             end
-
         else
+            local p = math.abs(close)
 
-            if math.abs(close) == 0 then
+            if p <= 0.25 then
                 return 150
-            elseif math.abs(close) == 1 then
+            elseif p <= 1.3 then
                 return 120
-            elseif math.abs(close) == 2 then
+            elseif p <= 2.6 then
                 return 110
-            elseif math.abs(close) >= 3 then
-                return 100 - (math.abs(close) * 2)
+            else
+                return 100 - (p * 2)
             end
-
         end
     end)
 
@@ -369,12 +306,11 @@ function Lib:init()
     Utils.hook(Item, "evaluateScore", function(orig, self, battler, score, bolts, close)
 
         if battler:getBoltCount() > 1 then
-
-            local crit = self.critical_threshold
-            local perfect_score = self:getMaxPoints() * battler:getBoltCount()
+            local crit = 30
+            local perfect_score = 105 * battler:getBoltCount()
     
             if perfect_score - score <= crit then
-                return 150 + self.critical_bonus
+                return 150
             elseif perfect_score - score <= 75 - crit then
                 return 120
             elseif perfect_score - score <= 150 - crit then
@@ -382,15 +318,8 @@ function Lib:init()
             else
                 return Utils.round(score / 3)
             end
-
-        elseif battler:getBoltCount() == 1 and score == 150 then
-
-            return score + self.critical_bonus
-
-        elseif battler:getBoltCount() == 1 then
-
+        else
             return score
-
         end
         
     end)
@@ -467,43 +396,59 @@ function Lib:init()
 
     -----  INIT
 
-    if not Lib.MOREPARTY then
-        Utils.hook(AttackBox, "init", function(orig, self, battler, offset, index, x, y)
+    Utils.hook(AttackBox, "init", function(orig, self, battler, offset, index, x, y)
 
-            AttackBox.__super.init(self, x, y)
-        
-            self.battler = battler
-            self.weapon = battler.chara:getWeapon()
-            self.offset = offset + self.battler:getBoltOffset()
-            self.index = index
-        
-            self.head_sprite = Sprite(battler.chara:getHeadIcons().."/head", 21, 19)
-            self.head_sprite:setOrigin(0.5, 0.5)
-            self:addChild(self.head_sprite)
-        
-            self.press_sprite = Sprite("ui/battle/press", 42, 0)
-            self:addChild(self.press_sprite)
-        
-            self.bolt_target = (80 + 2) + self.weapon:getBoltTarget()
-            self.bolt_miss_threshold = self.weapon:getBoltMissThreshold()
+        Object.init(self, x, y)
+    
+        self.battler = battler
+        self.weapon = battler.chara:getWeapon()
+        self.offset = offset + self.battler:getBoltOffset()
+        self.index = index
+    
+        self.head_sprite = Sprite(battler.chara:getHeadIcons().."/head", 21, 19)
+        self.head_sprite:setOrigin(0.5, 0.5)
+        self:addChild(self.head_sprite)
+    
+        self.press_sprite = Sprite("ui/battle/press", 42, 0)
+        self:addChild(self.press_sprite)
+    
+        self.bolt_target = 80 + 2
 
-            self.bolt_start_x = self.bolt_target + (self.offset * self.battler:getBoltSpeed())
-        
-            self.bolts = {}
-            self.score = 0
+        self.bolt_start_x = self.bolt_target + (self.offset * self.battler:getBoltSpeed())
+    
+        self.bolts = {}
+        self.score = 0
 
-            for i = 1, self.battler:getBoltCount() do
-                local bolt
+        for i = 1, self.battler:getBoltCount() do
+            local bolt
 
-                if i == 1 then
-                    bolt = AttackBar(self.bolt_start_x, 0, 6, 38)
+            if i == 1 then
+                bolt = AttackBar(self.bolt_start_x, 0, 6, 38)
+            else
+                local next_bolt_x
+                local variance = self.weapon:getMultiboltVariance()
+                if self.weapon.calculate_multibolt_from_last_bolt then
+                    if type(variance) == "table" then
+                        local index = variance[i - 1] and (i - 1) or #variance
+                        if type(variance[index]) == "number" then
+                            next_bolt_x = variance[index]
+                        elseif type(variance[index]) == "table" then
+                            next_bolt_x = Utils.pick(variance[index])
+                        else
+                            error("self.multibolt_variance must either be an integer, a table populated with integers, or a table of tables populated with integers.")
+                        end
+                    elseif type(variance) == "number" then
+                        next_bolt_x = variance
+                    else
+                        error("self.multibolt_variance must be either a table or a number value.")
+                    end
+                    
+                    bolt = AttackBar(self.bolts[i - 1].x + next_bolt_x, 0, 6, 38)
                 else
-                    local next_bolt_x
-                    local variance = self.weapon:getMultiboltVariance()
-                    if self.weapon.calculate_multibolt_from_last_bolt then
-                        -- following code written by firerainv (thank you) and adjusted by me
+                    local index = i - 1
+
+                    if variance[index] then
                         if type(variance) == "table" then
-                            local index = variance[i - 1] and (i - 1) or #variance
                             if type(variance[index]) == "number" then
                                 next_bolt_x = variance[index]
                             elseif type(variance[index]) == "table" then
@@ -516,58 +461,41 @@ function Lib:init()
                         else
                             error("self.multibolt_variance must be either a table or a number value.")
                         end
-                        
-                        bolt = AttackBar(self.bolts[i - 1].x + next_bolt_x, 0, 6, 38)
                     else
-                        local index = i - 1
-
-                        if variance[index] then
-                            if type(variance) == "table" then
-                                if type(variance[index]) == "number" then
-                                    next_bolt_x = variance[index]
-                                elseif type(variance[index]) == "table" then
-                                    next_bolt_x = Utils.pick(variance[index])
-                                else
-                                    error("self.multibolt_variance must either be an integer, a table populated with integers, or a table of tables populated with integers.")
-                                end
-                            elseif type(variance) == "number" then
-                                next_bolt_x = variance
-                            else
-                                error("self.multibolt_variance must be either a table or a number value.")
-                            end
-                        else
-                            next_bolt_x = Utils.pick(variance[#variance]) + (Utils.pick(variance[#variance]) * (index - #variance))
-                        end
-
-                        bolt = AttackBar(self.bolts[1].x + next_bolt_x, 0, 6, 38)
+                        next_bolt_x = Utils.pick(variance[#variance]) + (Utils.pick(variance[#variance]) * (index - #variance))
                     end
+
+                    bolt = AttackBar(self.bolts[1].x + next_bolt_x, 0, 6, 38)
                 end
-
-                bolt.layer = 1
-                table.insert(self.bolts, bolt)
-                self:addChild(bolt)
             end
-        
-            self.fade_rect = Rectangle(0, 0, SCREEN_WIDTH, 300)
-            self.fade_rect:setColor(0, 0, 0, 0)
-            self.fade_rect.layer = 2
-            self:addChild(self.fade_rect)
-        
-            self.afterimage_timer = 0
-            self.afterimage_count = -1
-        
-            self.flash = 0
-        
-            self.attacked = false
-            self.removing = false
 
-        end)
-    end
+            bolt.layer = 1
+            if #Game.battle.party > 3 then
+                bolt.height = math.floor(112 / #Game.battle.party)
+            end
+            table.insert(self.bolts, bolt)
+            self:addChild(bolt)
+        end
+    
+        self.fade_rect = Rectangle(0, 0, SCREEN_WIDTH, 300)
+        self.fade_rect:setColor(0, 0, 0, 0)
+        self.fade_rect.layer = 2
+        self:addChild(self.fade_rect)
+    
+        self.afterimage_timer = 0
+        self.afterimage_count = -1
+    
+        self.flash = 0
+    
+        self.attacked = false
+        self.removing = false
+
+    end)
 
     -----  GETCLOSE
 
     Utils.hook(AttackBox, "getClose", function(orig, self)
-        return Utils.round((self.bolts[1].x - self.bolt_target) / self.battler:getBoltSpeed())
+        return (self.bolts[1].x - self.bolt_target - 2) / self.battler:getBoltSpeed()
     end)
 
     -----  HIT
@@ -589,9 +517,7 @@ function Lib:init()
         local close = self:getClose()
 
         for _,equip in ipairs(self.battler.chara:getEquipment()) do
-            if equip.type == "armor" then
-                return equip:onArmorMiss(self.battler, self.score, self.bolts, close)
-            elseif equip.type == "weapon" then
+            if equip.type == "weapon" then
                 return equip:onWeaponMiss(self.battler, self.score, self.bolts, close)
             end
         end
@@ -600,88 +526,84 @@ function Lib:init()
 
     -----  UPDATE
 
-    if not Mod.libs["moreparty"] then
-        Utils.hook(AttackBox, "update", function(orig, self)
-            if self.removing or Game.battle.cancel_attack then
-                self.fade_rect.alpha = Utils.approach(self.fade_rect.alpha, 1, 0.08 * DTMULT)
+    Utils.hook(AttackBox, "update", function(orig, self)
+        if self.removing or Game.battle.cancel_attack then
+            self.fade_rect.alpha = Utils.approach(self.fade_rect.alpha, 1, 0.08 * DTMULT)
+        end
+    
+        if not self.attacked then
+
+            self.afterimage_timer = self.afterimage_timer + DTMULT/2
+
+            for _,bolt in ipairs(self.bolts) do
+
+                local accel = self.weapon:getBoltAcceleration()
+
+                if accel > 0 then
+                    bolt.physics.gravity = accel
+                    bolt.physics.gravity_direction = math.pi
+                    bolt:move(-(self.battler:getBoltSpeed() - 8) * DTMULT, 0)
+                    if bolt.x <= 84 and not bolt.target_magnet then
+                        bolt.x = 84
+                        bolt.target_magnet = true
+                    end
+                else
+                    bolt:move(-(self.battler:getBoltSpeed()) * DTMULT, 0)
+                end
+
             end
-        
-            if not self.attacked then
-
-                self.afterimage_timer = self.afterimage_timer + DTMULT/2
-
+            while math.floor(self.afterimage_timer) > self.afterimage_count do
+                self.afterimage_count = self.afterimage_count + 1
                 for _,bolt in ipairs(self.bolts) do
-
-                    local accel = self.weapon:getBoltAcceleration()
-
-                    if accel > 0 then
-                        bolt.physics.gravity = accel
-                        bolt.physics.gravity_direction = math.pi
-                        bolt:move(-(self.battler:getBoltSpeed() - 8) * DTMULT, 0)
-                        if bolt.x <= 84 + self.weapon:getBoltTarget() and not bolt.target_magnet then
-                            bolt.x = 84 + self.weapon:getBoltTarget()
-                            bolt.target_magnet = true
-                        end
-                    else
-                        bolt:move(-(self.battler:getBoltSpeed()) * DTMULT, 0)
-                    end
-
-                end
-                while math.floor(self.afterimage_timer) > self.afterimage_count do
-                    self.afterimage_count = self.afterimage_count + 1
-                    for _,bolt in ipairs(self.bolts) do
-                        local afterimg = AttackBar(bolt.x, 0, 6, 38)
-                        afterimg.layer = 3
-                        afterimg.alpha = 0.4
-                        afterimg:fadeOutSpeedAndRemove()
-                        self:addChild(afterimg)
-                    end
+                    local afterimg = AttackBar(bolt.x, 0, 6, #Game.battle.party > 3 and math.floor(112/#Game.battle.party) or 38)
+                    afterimg.layer = 3
+                    afterimg.alpha = 0.4
+                    afterimg:fadeOutSpeedAndRemove()
+                    self:addChild(afterimg)
                 end
             end
-        
-            if not Game.battle.cancel_attack and Input.pressed("confirm") then
-                self.flash = 1
-            else
-                self.flash = Utils.approach(self.flash, 0, DTMULT/5)
-            end
+        end
+    
+        if not Game.battle.cancel_attack and Input.pressed("confirm") then
+            self.flash = 1
+        else
+            self.flash = Utils.approach(self.flash, 0, DTMULT/5)
+        end
 
-            AttackBox.__super.update(self)
-        end)
-    end
+        Object.update(self)
+    end)
 
     -----  DRAW
 
-    if not Lib.MOREPARTY then
-        Utils.hook(AttackBox, "draw", function(orig, self)
+    Utils.hook(AttackBox, "draw", function(orig, self)
 
-            local target_color = {self.battler.chara:getAttackBarColor()}
-            local box_color = {self.battler.chara:getAttackBoxColor()}
+        local target_color = {self.battler.chara:getAttackBarColor()}
+        local box_color = {self.battler.chara:getAttackBoxColor()}
+    
+        if self.flash > 0 then
+            box_color = Utils.lerp(box_color, {1, 1, 1}, self.flash)
+        end
+    
+        love.graphics.setLineWidth(2)
+        love.graphics.setLineStyle("rough")
+
+        local ch1_offset = Game:getConfig("oldUIPositions") and #Game.battle.party <= 4
+
+        love.graphics.setColor(box_color)
+        local height = #Game.battle.party > 3 and math.floor(104 / #Game.battle.party) or 36
         
-            if self.flash > 0 then
-                box_color = Utils.lerp(box_color, {1, 1, 1}, self.flash)
-            end
-        
-            love.graphics.setLineWidth(2)
-            love.graphics.setLineStyle("rough")
+        love.graphics.rectangle("line", 80, ch1_offset and 0 or 1, (15 * (self.battler:getBoltSpeed())) + 3, height + (ch1_offset and 1 or 0))
 
-            local ch1_offset = Game:getConfig("oldUIPositions")
+        love.graphics.setColor(target_color)
+        love.graphics.rectangle("line", self.bolt_target + 1, 1, 8, height)
+        Draw.setColor(0, 0, 0)
+        love.graphics.rectangle("fill", 84, 2, 6, height - 2)
+    
+        love.graphics.setLineWidth(1)
+    
+        Object.draw(self)
 
-            local box_height = ch1_offset and 37 or 36
-
-            love.graphics.setColor(box_color)
-            love.graphics.rectangle("line", 80, ch1_offset and 0 or 1, (15 * (self.battler:getBoltSpeed())) + 3, box_height)
-
-            love.graphics.setColor(target_color)
-            love.graphics.rectangle("line", self.bolt_target + 1, 1, 8, box_height)
-            Draw.setColor(0, 0, 0)
-            love.graphics.rectangle("fill", 84, 2, 6, box_height - 2)
-        
-            love.graphics.setLineWidth(1)
-        
-            AttackBox.__super.draw(self)
-
-        end)
-    end
+    end)
 
     ----------------------------------------------------------------------------------
     -----  BATTLE HOOKS  
@@ -778,12 +700,12 @@ function Lib:init()
 
                     local close = box:getClose()
 
-                    if close <= box.bolt_miss_threshold and #box.bolts > 1 then
+                    if close <= -2 and #box.bolts > 1 then
 
                         all_done = false
                         box:miss()                 
 
-                    elseif close <= box.bolt_miss_threshold then
+                    elseif close <= -2 then
 
                         local points = box:miss() -- lmao
 
@@ -827,7 +749,7 @@ function Lib:init()
 
             if battler:getBoltCount() > 1 then
                 local perfect_score = (battler.chara:getWeapon():getMaxPoints() * battler:getBoltCount())
-                local crit = battler.chara:getWeapon():getCriticalThreshold()
+                local crit = 30
                 local crit_req = perfect_score - crit
         
                 if self.state == "ATTACKING" or self.state == "ACTIONSDONE" and ui.attack_boxes[i] then
@@ -843,10 +765,6 @@ function Lib:init()
         end
         
     end)
-
-    ----------------------------------------------------------------------------------
-    -----  I DID IT
-    ----------------------------------------------------------------------------------
 
 end
 

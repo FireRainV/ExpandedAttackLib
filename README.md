@@ -13,6 +13,7 @@ Add more variety to your FIGHT actionbutton today!
 
 ### Creator:
 * Sam Deluxe
+* FireRainV
 
 ### Contributors:
 * FireRainV
