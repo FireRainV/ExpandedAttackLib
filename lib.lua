@@ -79,7 +79,6 @@ function Lib:init()
     end)
 
     Utils.hook(Item, "onAttack", function(orig, self, action, battler, enemy, score, bolts, close)
-
         local src = Assets.stopAndPlaySound(battler.chara:getAttackSound() or "laz_c")
         src:setPitch(battler.chara:getAttackPitch() or 1)
 
@@ -121,7 +120,7 @@ function Lib:init()
             end
 
             if damage > 0 then
-                Game:giveTension(Utils.round(enemy:getAttackTension(action.points or 100)))
+                Game:giveTension(Utils.round(enemy:getAttackTension(score / battler:getBoltCount() or 100)))
 
                 local dmg_sprite = Sprite(battler.chara:getAttackSprite() or "effects/attack/cut")
                 dmg_sprite:setOrigin(0.5, 0.5)
@@ -212,15 +211,15 @@ function Lib:init()
         bolt:setParent(Game.battle.battle_ui)
 
         if battler:getBoltCount() > 1 then
-            if close == 0 then
-                Assets.stopAndPlaySound("victor", 1.2)
+            local p = math.abs(close)
+            if p <= 0.25 then
+                Assets.stopAndPlaySound("victor")
                 bolt:setColor(1, 1, 0)
                 bolt.burst_speed = 0.2
-            elseif close >= 6 or close <= -3 then
-                bolt:setColor(1, 80/255, 80/255, 1)
-            else
-                Assets.stopAndPlaySound("hit", 1.1)
+            elseif p > 2.6 then
                 bolt:setColor(battler.chara:getDamageColor())
+            else
+                Assets.stopAndPlaySound("hit")
             end
         else
             local p = math.abs(close)
@@ -237,67 +236,16 @@ function Lib:init()
     ----- EVALUATEHIT
 
     Utils.hook(Item, "evaluateHit", function(orig, self, battler, close)
+        local p = math.abs(close)
 
-        if battler:getBoltCount() > 1 then
-
-            if close < -1 then
-
-                --return 50
-                return math.floor(105 / 1.4)
-
-            elseif close < 0 then
-
-                --return 70
-                return math.floor(105 / 1.3)
-
-            elseif close < 1 then
-                
-                --return 105
-                return math.floor(105 / 1)
-
-            elseif close < 2 then
-
-                --return 85
-                return math.floor(105 / 1.2)
-
-            elseif close < 3 then
-
-                --return 70
-                return math.floor(105 / 1.35)
-
-            elseif close < 6 then
-
-                --return 40
-                return math.floor(105 / 2.1)
-
-            elseif close < 8 then
-
-                --return 25
-                return math.floor(105 / 3.7)
-
-            elseif close < 11 then
-
-                --return 20
-                return math.floor(105 / 4)
-
-            else
-
-                --return 10
-                return math.floor(105 / 5)
-
-            end
+        if p <= 0.25 then
+            return 150
+        elseif p <= 1.3 then
+            return 120
+        elseif p <= 2.6 then
+            return 110
         else
-            local p = math.abs(close)
-
-            if p <= 0.25 then
-                return 150
-            elseif p <= 1.3 then
-                return 120
-            elseif p <= 2.6 then
-                return 110
-            else
-                return 100 - (p * 2)
-            end
+            return 100 - (p * 2)
         end
     end)
 
@@ -306,17 +254,20 @@ function Lib:init()
     Utils.hook(Item, "evaluateScore", function(orig, self, battler, score, bolts, close)
 
         if battler:getBoltCount() > 1 then
-            local crit = 30
-            local perfect_score = 105 * battler:getBoltCount()
+            local perfect_score = 150 * battler:getBoltCount()
     
-            if perfect_score - score <= crit then
-                return 150
-            elseif perfect_score - score <= 75 - crit then
-                return 120
-            elseif perfect_score - score <= 150 - crit then
-                return 110
+            if perfect_score - score <= 0 then
+                Assets.stopAndPlaySound("saber3", 0.7)
+                return math.max(195, 425 * (battler:getBoltCount() / 4)^1.15)
+            elseif perfect_score - score <= 30 then
+                Assets.stopAndPlaySound("saber3", 0.7)
+                return math.max(175, 225 * (battler:getBoltCount() / 4)^1.15)
+            elseif perfect_score - score <= 70 then
+                return math.max(160, 170 * (battler:getBoltCount() / 4)^1.15)
+            elseif perfect_score - score <= 120 then
+                return math.max(130, 150 * (battler:getBoltCount() / 4)^1.15)
             else
-                return Utils.round(score / 3)
+                return Utils.round(score / battler:getBoltCount())
             end
         else
             return score
@@ -737,16 +688,22 @@ function Lib:init()
             local battler = box.battler
 
             if battler:getBoltCount() > 1 then
-                local perfect_score = (battler.chara:getWeapon():getMaxPoints() * battler:getBoltCount())
+                local perfect_score = (150 * battler:getBoltCount())
                 local crit_req = perfect_score - 30
         
                 if self.state == "ATTACKING" or self.state == "ACTIONSDONE" and ui.attack_boxes[i] then
 
-                    if perfect_score - ui.attack_boxes[i].score <= 30 then
+                    if perfect_score - ui.attack_boxes[i].score <= 0 then
+                        love.graphics.setColor(0, 1, 0, 1)
+                    elseif perfect_score - ui.attack_boxes[i].score <= 30 then
+                        love.graphics.setColor(0, 1, 1, 1)
+                    elseif perfect_score - ui.attack_boxes[i].score <= 80 then
                         love.graphics.setColor(1, 1, 0, 1)
+                    elseif perfect_score - ui.attack_boxes[i].score <= 120 then
+                        love.graphics.setColor(1, 0, 0, 1)
                     end
 
-                    self:debugPrintOutline(battler.chara.name .. "'s score: " .. ui.attack_boxes[i].score .. ", (" .. crit_req .. " for a crit)", 4, ui.attack_boxes[i].y + 310)
+                    self:debugPrintOutline(battler.chara.name .. "'s score: " .. math.floor(ui.attack_boxes[i].score) .. ", (" .. crit_req .. " for a crit)", 4, ui.attack_boxes[i].y + 310)
                 end
             end
 
