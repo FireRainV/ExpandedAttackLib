@@ -1,4 +1,4 @@
-# ExpandedAttackLib v1.3 for [Kristal](https://github.com/KristalTeam/Kristal)
+# ExpandedAttackLib for [Kristal](https://github.com/KristalTeam/Kristal)
 
 Add more variety to your FIGHT actionbutton today!
 
@@ -26,10 +26,3 @@ Add more variety to your FIGHT actionbutton today!
 
 ### Default Sound Effects:
 * UNDERTALE
-
-## Releases:
-https://github.com/Idunno1/ExpandedAttackLib/releases<br>
-(I recommend cloning the repo but y'know)
-
-## Docs:
-https://github.com/Idunno1/ExpandedAttackLib/wiki
