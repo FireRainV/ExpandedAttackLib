@@ -255,17 +255,18 @@ function Lib:init()
 
         if battler:getBoltCount() > 1 then
             local perfect_score = 150 * battler:getBoltCount()
+            local increased = battler:getBoltCount() / 4 >= 1
     
             if perfect_score - score <= 0 then
                 Assets.stopAndPlaySound("saber3", 0.7)
-                return math.max(195, 425 * (battler:getBoltCount() / 4)^1.15)
+                return increased and 425 or 195
             elseif perfect_score - score <= 30 then
                 Assets.stopAndPlaySound("saber3", 0.7)
-                return math.max(175, 225 * (battler:getBoltCount() / 4)^1.15)
+                return increased and 225 or 175
             elseif perfect_score - score <= 70 then
-                return math.max(160, 170 * (battler:getBoltCount() / 4)^1.15)
+                return increased and 160 or 170
             elseif perfect_score - score <= 120 then
-                return math.max(130, 150 * (battler:getBoltCount() / 4)^1.15)
+                return increased and 130 or 150
             else
                 return Utils.round(score / battler:getBoltCount())
             end
@@ -297,7 +298,7 @@ function Lib:init()
         self.bolt_count = 0
 
         local equip = self.chara:getWeapon()
-        if equip:getBoltCount() then
+        if equip and equip:getBoltCount() then
             self.bolt_count = self.bolt_count + equip:getBoltCount()
         else
             self.bolt_count = self.bolt_count + 1
@@ -313,7 +314,7 @@ function Lib:init()
         self.bolt_speed = 0
 
         local equip = self.chara:getWeapon()
-        if equip:getBoltSpeed() then
+        if equip and equip:getBoltSpeed() then
             self.bolt_speed = self.bolt_speed + equip:getBoltSpeed()
         else
             self.bolt_speed = self.bolt_speed + AttackBox.BOLTSPEED
@@ -328,7 +329,9 @@ function Lib:init()
         self.bolt_offset = 0
 
         local equip = self.chara:getWeapon()
-        self.bolt_offset = self.bolt_offset + equip:getBoltOffset()
+        if equip then
+            self.bolt_offset = self.bolt_offset + equip:getBoltOffset()
+        end
 
         return self.bolt_offset
 
@@ -345,7 +348,7 @@ function Lib:init()
         Object.init(self, x, y)
     
         self.battler = battler
-        self.weapon = battler.chara:getWeapon()
+        self.weapon = battler.chara:getWeapon() or Registry.createItem("everybodyweapon")
         self.offset = offset + self.battler:getBoltOffset()
         self.index = index
     
@@ -433,6 +436,12 @@ function Lib:init()
     
         self.attacked = false
         self.removing = false
+        
+        if #Game.battle.party <= 3 then return end
+        
+        self.head_sprite:setOrigin(0.5, 0.75 + (2 * (#Game.battle.party - 4) * 0.075))
+        self.press_sprite:setOrigin(0, (#Game.battle.party - 4) * 0.025)
+        self.head_sprite:setScale(1 - ((#Game.battle.party - 4) * 0.125))
 
     end)
 
@@ -448,7 +457,7 @@ function Lib:init()
         
         local close = self:getClose()
 
-        local equip = self.battler.chara:getWeapon()
+        local equip = self.battler.chara:getWeapon() or Registry.createItem("everybodyweapon")
         return equip:onHit(self.battler, self.score, self.bolts, close)
 
     end)
@@ -459,7 +468,7 @@ function Lib:init()
 
         local close = self:getClose()
 
-        local equip = self.battler.chara:getWeapon()
+        local equip = self.battler.chara:getWeapon() or Registry.createItem("everybodyweapon")
         return equip:onWeaponMiss(self.battler, self.score, self.bolts, close)
 
     end)
@@ -555,7 +564,7 @@ function Lib:init()
         local battler = self.party[action.character_id]
         local party_member = battler.chara
         local enemy = action.target
-        local battler_weapon = battler.chara:getWeapon()
+        local battler_weapon = battler.chara:getWeapon() or Registry.createItem("everybodyweapon")
 
         self.current_processing_action = action
 
