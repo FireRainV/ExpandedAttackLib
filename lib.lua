@@ -255,17 +255,18 @@ function Lib:init()
 
         if battler:getBoltCount() > 1 then
             local perfect_score = 150 * battler:getBoltCount()
+            local increased = battler:getBoltCount() / 4 >= 1
     
             if perfect_score - score <= 0 then
                 Assets.stopAndPlaySound("saber3", 0.7)
-                return math.max(195, 425 * (battler:getBoltCount() / 4)^1.15)
+                return increased and 425 or 195
             elseif perfect_score - score <= 30 then
                 Assets.stopAndPlaySound("saber3", 0.7)
-                return math.max(175, 225 * (battler:getBoltCount() / 4)^1.15)
+                return increased and 225 or 175
             elseif perfect_score - score <= 70 then
-                return math.max(160, 170 * (battler:getBoltCount() / 4)^1.15)
+                return increased and 160 or 170
             elseif perfect_score - score <= 120 then
-                return math.max(130, 150 * (battler:getBoltCount() / 4)^1.15)
+                return increased and 130 or 150
             else
                 return Utils.round(score / battler:getBoltCount())
             end
