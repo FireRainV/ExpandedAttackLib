@@ -497,7 +497,7 @@ function Lib:init()
         
         local close = self:getClose()
 
-        local equip = self.chara:getWeapon()
+        local equip = self.battler.chara:getWeapon()
         return equip:onHit(self.battler, self.score, self.bolts, close)
 
     end)
@@ -508,7 +508,7 @@ function Lib:init()
 
         local close = self:getClose()
 
-        local equip = self.chara:getWeapon()
+        local equip = self.battler.chara:getWeapon()
         return equip:onWeaponMiss(self.battler, self.score, self.bolts, close)
 
     end)
@@ -738,12 +738,11 @@ function Lib:init()
 
             if battler:getBoltCount() > 1 then
                 local perfect_score = (battler.chara:getWeapon():getMaxPoints() * battler:getBoltCount())
-                local crit = 30
-                local crit_req = perfect_score - crit
+                local crit_req = perfect_score - 30
         
                 if self.state == "ATTACKING" or self.state == "ACTIONSDONE" and ui.attack_boxes[i] then
 
-                    if perfect_score - ui.attack_boxes[i].score <= crit then
+                    if perfect_score - ui.attack_boxes[i].score <= 30 then
                         love.graphics.setColor(1, 1, 0, 1)
                     end
 
