@@ -6,7 +6,6 @@ Add more variety to your FIGHT actionbutton today!
 
 * Multibolt attacks, like the ones used by the Empty Gun, Burnt Pan, etc. from UNDERTALE
 * Accelerating bolts, like the ones used by the Cracked Bat from DELTATRAVELER
-* Per-weapon attack score calculation
 * ...And (probably) more!
 
 ## Credits:
