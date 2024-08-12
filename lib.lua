@@ -345,14 +345,11 @@ function Lib:init()
 
         self.bolt_count = 0
 
-        for _,equip in ipairs(self.chara:getEquipment()) do
-            if equip:getBoltCount() then
-                self.bolt_count = self.bolt_count + equip:getBoltCount()
-            else
-                if equip.type == "weapon" then
-                    self.bolt_count = self.bolt_count + 1
-                end
-            end
+        local equip = self.chara:getWeapon()
+        if equip:getBoltCount() then
+            self.bolt_count = self.bolt_count + equip:getBoltCount()
+        else
+            self.bolt_count = self.bolt_count + 1
         end
 
         return self.bolt_count
@@ -364,14 +361,11 @@ function Lib:init()
 
         self.bolt_speed = 0
 
-        for _,equip in ipairs(self.chara:getEquipment()) do
-            if equip:getBoltSpeed() then
-                self.bolt_speed = self.bolt_speed + equip:getBoltSpeed()
-            else
-                if equip.type == "weapon" then
-                    self.bolt_speed = self.bolt_speed + AttackBox.BOLTSPEED
-                end
-            end
+        local equip = self.chara:getWeapon()
+        if equip:getBoltSpeed() then
+            self.bolt_speed = self.bolt_speed + equip:getBoltSpeed()
+        else
+            self.bolt_speed = self.bolt_speed + AttackBox.BOLTSPEED
         end
 
         return self.bolt_speed
@@ -382,9 +376,8 @@ function Lib:init()
 
         self.bolt_offset = 0
 
-        for _,equip in ipairs(self.chara:getEquipment()) do
-            self.bolt_offset = self.bolt_offset + equip:getBoltOffset()
-        end
+        local equip = self.chara:getWeapon()
+        self.bolt_offset = self.bolt_offset + equip:getBoltOffset()
 
         return self.bolt_offset
 
@@ -504,9 +497,8 @@ function Lib:init()
         
         local close = self:getClose()
 
-        for _,equip in ipairs(self.battler.chara:getEquipment()) do
-            return equip:onHit(self.battler, self.score, self.bolts, close)
-        end
+        local equip = self.chara:getWeapon()
+        return equip:onHit(self.battler, self.score, self.bolts, close)
 
     end)
 
@@ -516,11 +508,8 @@ function Lib:init()
 
         local close = self:getClose()
 
-        for _,equip in ipairs(self.battler.chara:getEquipment()) do
-            if equip.type == "weapon" then
-                return equip:onWeaponMiss(self.battler, self.score, self.bolts, close)
-            end
-        end
+        local equip = self.chara:getWeapon()
+        return equip:onWeaponMiss(self.battler, self.score, self.bolts, close)
 
     end)
 
