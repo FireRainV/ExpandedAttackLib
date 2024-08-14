@@ -10,13 +10,10 @@ Add more variety to your FIGHT actionbutton today!
 
 ## Credits:
 
-### Creator:
+### Creators:
 * Sam Deluxe
 * FireRainV
-
-### Contributors:
-* FireRainV
-
+<!-- ### Contributors: -->
 ### Testers:
 * Charbomber
 * AcousticJamm
