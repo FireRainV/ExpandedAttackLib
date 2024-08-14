@@ -255,7 +255,7 @@ function Lib:init()
 
         if battler:getBoltCount() > 1 then
             local perfect_score = 150 * battler:getBoltCount()
-            local increased = battler:getBoltCount() / 4 >= 1
+            local increased = battler:getBoltCount() >= 4
     
             if perfect_score - score <= 0 then
                 Assets.stopAndPlaySound("saber3", 0.7)
