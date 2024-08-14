@@ -263,9 +263,9 @@ function Lib:init()
             elseif perfect_score - score <= 30 then
                 Assets.stopAndPlaySound("saber3", 0.7)
                 return increased and 225 or 175
-            elseif perfect_score - score <= 70 then
+            elseif perfect_score - score <= 60 then
                 return increased and 170 or 160
-            elseif perfect_score - score <= 120 then
+            elseif perfect_score - score <= 90 then
                 return increased and 150 or 130
             else
                 return Utils.round(score / battler:getBoltCount())
