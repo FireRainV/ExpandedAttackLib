@@ -3,7 +3,7 @@
 Add more variety to your FIGHT today!
 
 * This is the continuation from the point where ExpandedAttackLib by Sam Deluxe was archived.
-* For attax (ExpandedAttackLib2) by Sam Deluxe, [click here] (https://github.com/Idunno1/attax)!
+* For attax (ExpandedAttackLib2) by Sam Deluxe, [click here] (https://github.com/Idunno1/attax) !
 
 
 ## This library adds:
