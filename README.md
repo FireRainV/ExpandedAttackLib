@@ -1,4 +1,4 @@
-# ExpandedAttackLib for [Kristal](https://github.com/KristalTeam/Kristal)
+# ExpandedAttackLib: Redux for [Kristal](https://github.com/KristalTeam/Kristal)
 
 Add more variety to your FIGHT today!
 
