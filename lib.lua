@@ -266,7 +266,7 @@ function Lib:init()
             elseif perfect_score - score <= 60 then
                 return increased and 170 or 160
             elseif perfect_score - score <= 90 then
-                return increased and 150 or 130
+                return increased and 155 or 150
             else
                 return Utils.round(score / battler:getBoltCount())
             end
