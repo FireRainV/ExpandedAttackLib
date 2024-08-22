@@ -142,7 +142,7 @@ function Lib:init()
 
                 battler.chara:onAttackHit(enemy, damage)
             else
-                enemy:statusMessage("msg", "miss", {battler.chara:getDamageColor()})
+                enemy:hurt(0, battler, nil, nil, nil, action.points ~= 0)
             end
 
             Game.battle:finishAction(action)
