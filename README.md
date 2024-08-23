@@ -10,7 +10,7 @@ Add more variety to your FIGHT today!
 
 * Multibolt attacks, like the ones used by the Empty Gun, Burnt Pan, etc. from UNDERTALE
 * Accelerating bolts, like the ones used by the Cracked Bat from DELTATRAVELER
-* ...And (probably) more!
+* More bolt customizability!
 
 ## Supported Libraries:
 * [MoreParty](https://gamebanana.com/mods/436685)
