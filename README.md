@@ -15,6 +15,8 @@ Add more variety to your FIGHT today!
 ## Supported Libraries:
 * [MoreParty](https://gamebanana.com/mods/436685)
 * [Magical-Glass](https://github.com/FireRainV/magical-glass)
+* [Multiplayer](https://gamebanana.com/mods/522814)
+And probably more!
 
 ## Credits:
 
