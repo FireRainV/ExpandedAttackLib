@@ -512,8 +512,17 @@ function Lib:init()
                 end
             end
         end
+        
+        local pressed_confirm = false
+        if Mod.libs["multiplayer"] then
+            for i = 2, math.min(Mod.libs["multiplayer"].max_players, #Game.battle.party) do
+                if Input.pressed("p".. i .."_confirm") then
+                    pressed_confirm = true
+                end
+            end
+        end
     
-        if not Game.battle.cancel_attack and Input.pressed("confirm") then
+        if not Game.battle.cancel_attack and (Input.pressed("confirm") or pressed_confirm) then
             self.flash = 1
         else
             self.flash = Utils.approach(self.flash, 0, DTMULT/5)
