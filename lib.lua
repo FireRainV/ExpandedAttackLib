@@ -120,7 +120,7 @@ function Lib:init()
             end
 
             if damage > 0 then
-                Game:giveTension(Utils.round(enemy:getAttackTension(score / battler:getBoltCount() or 100)))
+                Game:giveTension(Utils.round(enemy:getAttackTension(Game.battle:getActionBy(battler).action == "AUTOATTACK" and action.points or score / battler:getBoltCount() or 100)))
 
                 local dmg_sprite = Sprite(battler.chara:getAttackSprite() or "effects/attack/cut")
                 dmg_sprite:setOrigin(0.5, 0.5)
