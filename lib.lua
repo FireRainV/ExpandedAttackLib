@@ -486,7 +486,7 @@ function Lib:init()
 
             for _,bolt in ipairs(self.bolts) do
 
-                local accel = self.weapon:getBoltAcceleration()
+                local accel = self.weapon:getBoltAcceleration() / 10
 
                 if accel > 0 then
                     bolt.physics.gravity = accel
