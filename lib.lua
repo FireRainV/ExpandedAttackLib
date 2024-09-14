@@ -600,6 +600,24 @@ function Lib:init()
             end
         end
         
+        if Mod.libs["classic_turn_based_rpg"] then
+            if action.action == "AUTOATTACK" and action.critical then
+                Assets.stopAndPlaySound("criticalswing")
+
+                for i = 1, 3 do
+                    local sx, sy = battler:getRelativePos(battler.width, 0)
+                    local sparkle = Sprite("effects/criticalswing/sparkle", sx + Utils.random(50), sy + 30 + Utils.random(30))
+                    sparkle:play(4/30, true)
+                    sparkle:setScale(2)
+                    sparkle.layer = BATTLE_LAYERS["above_battlers"]
+                    sparkle.physics.speed_x = Utils.random(2, 6)
+                    sparkle.physics.friction = -0.25
+                    sparkle:fadeOutSpeedAndRemove()
+                    self:addChild(sparkle)
+                end
+            end
+        end
+        
         local attackbox
         for _,box in ipairs(Game.battle.battle_ui.attack_boxes) do
             if box.battler == battler then
