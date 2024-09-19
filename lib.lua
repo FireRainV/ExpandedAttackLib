@@ -1,11 +1,6 @@
 local Lib = {}
 
 function Lib:init()
-
-    ----------------------------------------------------------------------------------
-    -----  BITCH
-    ----------------------------------------------------------------------------------
-
     print("Loaded ExpandedAttackLib: Redux " .. self.info.version .. "!")
 
     ----------------------------------------------------------------------------------
@@ -487,10 +482,10 @@ function Lib:init()
 
             for _,bolt in ipairs(self.bolts) do
 
-                local accel = self.weapon:getBoltAcceleration() / 10
+                local acceleration = (self.weapon:getBoltAcceleration() * (self.battler:getBoltSpeed() / 8)) / 10
 
-                if accel > 0 then
-                    if bolt.x <= 84 + 8 and bolt.target_magnet < 1 then
+                if acceleration > 0 then
+                    if bolt.x <= 84 + self.battler:getBoltSpeed() and bolt.target_magnet < 1 then
                         if not bolt.last_speed then
                             bolt.last_speed = bolt.physics.speed_x
                         end
@@ -502,9 +497,8 @@ function Lib:init()
                             bolt.physics.speed_x = bolt.last_speed
                             bolt.last_speed = nil
                         end
-                        bolt.physics.gravity = accel
+                        bolt.physics.gravity = acceleration
                         bolt.physics.gravity_direction = math.pi
-                        bolt:move(-(self.battler:getBoltSpeed() - 8) * DTMULT, 0)
                     end
                 else
                     bolt:move(-(self.battler:getBoltSpeed()) * DTMULT, 0)
