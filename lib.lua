@@ -479,11 +479,9 @@ function Lib:init()
         if not self.attacked then
 
             self.afterimage_timer = self.afterimage_timer + DTMULT/2
+            local acceleration = (self.weapon:getBoltAcceleration() * (self.battler:getBoltSpeed() / 8)) / 10
 
             for _,bolt in ipairs(self.bolts) do
-
-                local acceleration = (self.weapon:getBoltAcceleration() * (self.battler:getBoltSpeed() / 8)) / 10
-
                 if acceleration > 0 then
                     if bolt.x <= 84 + self.battler:getBoltSpeed() and bolt.target_magnet < 1 then
                         if not bolt.last_speed then
@@ -503,7 +501,6 @@ function Lib:init()
                 else
                     bolt:move(-(self.battler:getBoltSpeed()) * DTMULT, 0)
                 end
-
             end
             while math.floor(self.afterimage_timer) > self.afterimage_count do
                 self.afterimage_count = self.afterimage_count + 1
