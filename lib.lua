@@ -21,7 +21,7 @@ function Lib:init()
         self.bolt_count = nil
         self.bolt_speed = nil
         self.bolt_offset = 0
-        self.bolt_accel = 0
+        self.bolt_acceleration = 0
         self.multibolt_variance = 80
         
         -- Determines how multibolts are spawned.
@@ -49,7 +49,7 @@ function Lib:init()
     end)
 
     Utils.hook(Item, "getBoltAcceleration", function(orig, self)
-        return self.bolt_accel
+        return self.bolt_acceleration
     end)
 
     ----- CALLBACKS
@@ -417,6 +417,7 @@ function Lib:init()
             end
 
             bolt.layer = 1
+            bolt.target_magnet = 0
             if #Game.battle.party > 3 then
                 bolt.height = math.floor(112 / #Game.battle.party)
             end
@@ -489,12 +490,21 @@ function Lib:init()
                 local accel = self.weapon:getBoltAcceleration() / 10
 
                 if accel > 0 then
-                    bolt.physics.gravity = accel
-                    bolt.physics.gravity_direction = math.pi
-                    bolt:move(-(self.battler:getBoltSpeed() - 8) * DTMULT, 0)
-                    if bolt.x <= 84 and not bolt.target_magnet then
+                    if bolt.x <= 84 + 8 and bolt.target_magnet < 1 then
+                        if not bolt.last_speed then
+                            bolt.last_speed = bolt.physics.speed_x
+                        end
+                        bolt:resetPhysics()
                         bolt.x = 84
-                        bolt.target_magnet = true
+                        bolt.target_magnet = bolt.target_magnet + DTMULT
+                    else
+                        if bolt.last_speed then
+                            bolt.physics.speed_x = bolt.last_speed
+                            bolt.last_speed = nil
+                        end
+                        bolt.physics.gravity = accel
+                        bolt.physics.gravity_direction = math.pi
+                        bolt:move(-(self.battler:getBoltSpeed() - 8) * DTMULT, 0)
                     end
                 else
                     bolt:move(-(self.battler:getBoltSpeed()) * DTMULT, 0)
