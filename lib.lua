@@ -124,7 +124,8 @@ function Lib:init()
                 else
                     dmg_sprite:setScale(2, 2)
                 end
-                dmg_sprite:setPosition(enemy:getRelativePos(enemy.width/2, enemy.height/2))
+                local relative_pos_x, relative_pos_y = enemy:getRelativePos(enemy.width/2, enemy.height/2)
+                dmg_sprite:setPosition(relative_pos_x + enemy.dmg_sprite_offset[1], relative_pos_y + enemy.dmg_sprite_offset[2])
                 dmg_sprite.layer = enemy.layer + 0.01
                 dmg_sprite:play(1/15, false, function(s) s:remove() end)
                 enemy.parent:addChild(dmg_sprite)
