@@ -22,7 +22,6 @@ function Lib:init()
         -- Determines how multibolts are spawned.
         -- true = "last_bolt":  The next bolt is spawned relative to the last bolt spawned (lower values recommended)
         -- false = "first_bolt": The next bolt is spawned relative to the first bolt spawned (higher values recommended, bolts may overlap)
-        -- first_bolt is here for magical glass parity, though last_bolt is recommended
         self.calculate_multibolt_from_last_bolt = true
     
     end)
@@ -39,12 +38,12 @@ function Lib:init()
         return self.bolt_offset
     end)
 
-    Utils.hook(Item, "getMultiboltVariance", function(orig, self, index)
-        return self.multibolt_variance
-    end)
-
     Utils.hook(Item, "getBoltAcceleration", function(orig, self)
         return self.bolt_acceleration
+    end)
+    
+    Utils.hook(Item, "getMultiboltVariance", function(orig, self, index)
+        return self.multibolt_variance
     end)
 
     ----- CALLBACKS
